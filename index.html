@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <!-- The above 3 meta tags *must* come first in the head; any other head content must come *after* these tags -->
+  <title>Simple Storage</title>
+
+  <!-- Bootstrap -->
+  <link href="css/bootstrap.min.css" rel="stylesheet">
+
+  <!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
+  <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+  <!--[if lt IE 9]>
+      <script src="https://oss.maxcdn.com/html5shiv/3.7.3/html5shiv.min.js"></script>
+      <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
+    <![endif]-->
+</head>
+
+<body>
+  <div class="container" style="width: 650px;">
+    <div class="row">
+      <div class="col-lg-12 text-center">
+        <h1>Simple Storage</h1>
+        <hr />
+        <br />
+        <div id="content">
+          <h4 id="storageValue"></h4>
+          <hr />
+          <form role="form">
+            <div class="form-group" style="display:inline;">
+              <div class="input-group">
+                <input class="form-control input-lg" name="storageInput">
+                </input>
+                <span class="input-group-btn">
+                  <button type="submit" class="btn btn-primary btn-lg">Set Value</button>
+                </span>
+              </div>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
+  <script src="js/bootstrap.min.js"></script>
+  <script src="js/web3.min.js"></script>
+  <script>
+
+    // Initialize Web3
+    if (typeof web3 !== 'undefined') {
+      web3.currentProvider.enable();
+      web3 = new Web3(window.web3.currentProvider); 
+      console.log("a");
+    } else {
+      web3 = new Web3(new Web3.providers.HttpProvider('http://localhost:8545'));
+      console.log("b.");
+    }
+
+    // Fetch accounts and set the default one
+    web3.eth.getAccounts(function(err, result){
+      web3.eth.defaultAccount = result[0];
+    });
+
+    // Set Contract Abi
+    var contractAbi = [
+	{
+		"inputs": [
+			{
+				"internalType": "uint256",
+				"name": "x",
+				"type": "uint256"
+			}
+		],
+		"name": "setValue",
+		"outputs": [],
+		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
+		"inputs": [],
+		"stateMutability": "nonpayable",
+		"type": "constructor"
+	},
+	{
+		"inputs": [],
+		"name": "getValue",
+		"outputs": [
+			{
+				"internalType": "uint256",
+				"name": "",
+				"type": "uint256"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	}
+];
+
+    // Set Contract Address
+    var contractAddress = "0x4304d9c9E2DF59b63E4A3aEFEAE9Af109E66C907";
+
+    // Set the Contract
+    var contract = new web3.eth.Contract(contractAbi, contractAddress);
+
+    //Read the value
+    contract.methods.getValue().call(function (err, value) {
+      $('#storageValue').html(value);
+    });
+
+    // Change the Value
+    $('form').on('submit', function (event) {
+      event.preventDefault();
+      contract.methods.setValue($('input').val()).send({ from: web3.eth.defaultAccount });
+    })
+
+  </script>
+</body>
+
+</html>
